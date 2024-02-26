@@ -154,17 +154,14 @@ OAUTH_DIR="/var/www/$OAUTH_APP_USER/www"
 # and is redirected to the Yunohost panel without this configuration
 echo_info '[STEP 4/15] Adding Nginx conf ...'
 
-NGINX_CONFIG_FILE="/etc/nginx/conf.d/$DOMAIN_NAME.d/$OAUTH_APP_USER.conf"
-NGINX_TEMP_CONFIG_FILE="$NGINX_CONFIG_FILE-$(date +%Y-%m-%d_%H.%M.%S)"
+NGINX_CONFIG_DIR="/etc/nginx/conf.d/$DOMAIN_NAME.d/$OAUTH_APP_USER.d"
+NGINX_CONFIG_FILE="$NGINX_CONFIG_DIR/access_token.conf"
 
-NGINX_CONF_BLOCK="    location /${OAUTH_APP_NAME,,}/access_token {
-      try_files \$uri  /${OAUTH_APP_NAME,,}/index.php;
-    }
-" 
-NGINX_CONF_NEXT_LINE='    # Default indexes and catch-all'
+NGINX_CONF_BLOCK="location /${OAUTH_APP_NAME,,}/access_token {
+  try_files \$uri  /${OAUTH_APP_NAME,,}/index.php;
+}" 
 
-awk -v block="$NGINX_CONF_BLOCK" "/^$NGINX_CONF_NEXT_LINE$/{ print block }1" "$NGINX_CONFIG_FILE" > "$NGINX_TEMP_CONFIG_FILE"
-mv "$NGINX_TEMP_CONFIG_FILE" "$NGINX_CONFIG_FILE"
+echo "$NGINX_CONF_BLOCK" > "$NGINX_CONFIG_FILE"
 check_result $?
 
 ################################################################################
